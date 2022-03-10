@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  app1:
+    image: nginx:alpine
+    ports:
+      - "8101:80"
+    networks:
+      mynetwork:
+        ipv4_address: 10.10.0.2
+    command: /bin/sh -c "echo '<h1>APP 1</h1>' > /usr/share/nginx/html/index.html; nginx -g 'daemon off;'"
+
+  app2:
+    image: nginx:alpine
+    ports:
+      - "8102:80"
+    networks:
+      mynetwork:
+        ipv4_address: 10.10.0.3
+
+    command: /bin/sh -c "echo '<h1>App 2</h1>' > /usr/share/nginx/html/index.html; nginx -g 'daemon off;'"
+
+  app3:
+    image: nginx:alpine
+    ports:
+      - "8103:80"
+    networks:
+      mynetwork:
+        ipv4_address: 10.10.0.4
+    command: /bin/sh -c "echo '<h1>app 3</h1>' > /usr/share/nginx/html/index.html; nginx -g 'daemon off;'"
+
+  lb:
+    image: nginx:alpine
+    volumes:
+      - "./lb-conf/nginx.conf:/etc/nginx/nginx.conf"
+      - "./lb-conf/default.conf:/etc/nginx/conf.d/default.conf"
+    networks:
+      mynetwork:
+        ipv4_address: 10.10.0.5
+    ports:
+      - "8100:80"
+    command: /bin/sh -c "nginx -g 'daemon off;'"
+
+
+networks:
+  mynetwork:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.10.0.0/24
